@@ -20,8 +20,12 @@ try {
     
     // TiDB Cloud mewajibkan koneksi SSL
     if (strpos($db_host, 'tidbcloud') !== false) {
-        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
-        $options[PDO::MYSQL_ATTR_SSL_CA] = __DIR__ . '/cacert.pem'; // File Sertifikat CA Agar Aman & Terhubung
+        // Fallback untuk Vercel PHP 8.4+ dan localhost
+        $attrVerify = defined('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') ? constant('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') : @constant('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT');
+        $attrCa = defined('Pdo\Mysql::ATTR_SSL_CA') ? constant('Pdo\Mysql::ATTR_SSL_CA') : @constant('PDO::MYSQL_ATTR_SSL_CA');
+        
+        $options[$attrVerify] = true;
+        $options[$attrCa] = __DIR__ . '/cacert.pem'; // File Sertifikat CA
     }
 
     $pdo = new PDO($dsn, $db_user, $db_pass, $options);
