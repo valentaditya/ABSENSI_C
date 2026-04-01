@@ -1,4 +1,7 @@
 <?php
+// Sembunyikan warning deprecation dari PHP 8.4 agar tidak merusak layout HTML atau JSON Response
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 // Pengaturan Koneksi Database (Mendukung Vercel & TiDB Cloud)
 $db_host = getenv('DB_HOST') ?: 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
 $db_user = getenv('DB_USER') ?: '2xRNcJKfCW3yKva.root';
