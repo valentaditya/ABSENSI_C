@@ -6,7 +6,7 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
     exit;
 }
 
-require_once 'config/database.php';
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

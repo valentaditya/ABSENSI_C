@@ -9,7 +9,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT'])) 
     exit;
 }
 
-require_once 'config/database.php';
+
 $msg = '';
 $err = '';
 

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
-require_once '../config/config.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Validasi Header API KEY
 $headers = apache_request_headers();

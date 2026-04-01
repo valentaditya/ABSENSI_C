@@ -5,7 +5,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'OWNER') {
     exit(json_encode(['error' => 'Forbidden']));
 }
 
-require_once '../config/database.php';
+
 
 // Hanya menerima POST untuk keamanan extra
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

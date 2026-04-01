@@ -9,7 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'IT') {
     exit;
 }
 
-require_once 'config/database.php';
+
 
 $stmt = $pdo->query("SELECT * FROM login_logs ORDER BY login_time DESC LIMIT 100");
 $logs = $stmt->fetchAll();

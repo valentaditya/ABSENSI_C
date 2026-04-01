@@ -5,7 +5,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     exit(json_encode(['error' => 'Unauthorized']));
 }
 
-require_once '../config/database.php';
+
 
 $period = $_GET['period'] ?? 'today';
 $search = $_GET['search'] ?? '';
