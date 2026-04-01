@@ -181,25 +181,25 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
                         } else {
                             let html = '';
                             data.table.forEach(r => {
-                                html += \`
+                                html += `
                                     <tr>
-                                        <td><strong>\${r.username}</strong></td>
-                                        <td><small class="text-secondary">\${r.userId}</small></td>
-                                        <td>\${r.join_time_format}</td>
-                                        <td>\${r.leave_time_format}</td>
-                                        <td>\${r.duration}</td>
+                                        <td><strong>${r.username}</strong></td>
+                                        <td><small class="text-secondary">${r.userId}</small></td>
+                                        <td>${r.join_time_format}</td>
+                                        <td>${r.leave_time_format}</td>
+                                        <td>${r.duration}</td>
                                     </tr>
-                                \`;
+                                `;
                             });
                             laporanBody.innerHTML = html;
                         }
                     } else {
-                        laporanBody.innerHTML = \`<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>\`;
+                        laporanBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>`;
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    laporanBody.innerHTML = \`<tr><td colspan="5" class="text-center text-danger">Koneksi API error</td></tr>\`;
+                    laporanBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Koneksi API error</td></tr>`;
                 });
         }
 
