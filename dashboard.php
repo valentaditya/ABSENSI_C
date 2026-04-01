@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/config/session.php';
 // Proteksi halaman admin, wajib login berdasarkan Session
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header('Location: index.php'); // Kembali ke login

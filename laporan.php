@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/config/session.php';
 // Halaman Laporan: OWNER, IT, MODERATOR (Bukan USER)
 if (!isset($_SESSION['is_admin'])) {
     header('Location: index.php');

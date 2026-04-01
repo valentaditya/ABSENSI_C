@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/config/session.php';
 // Jika sudah admin (sudah login), skip login page
 if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
     header('Location: dashboard.php');

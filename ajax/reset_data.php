@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/session.php';
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'OWNER') {
     http_response_code(403);
     exit(json_encode(['error' => 'Forbidden']));
