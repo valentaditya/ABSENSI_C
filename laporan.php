@@ -82,6 +82,8 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
                         <option value="all">Semua Waktu</option>
                     </select>
 
+                    <input type="date" id="laporanDate" class="input-modern" style="min-width: 140px;" title="Cari berdasarkan tanggal spesifik">
+
                     <input type="text" id="laporanSearch" placeholder="Cari username..." class="input-modern" style="min-width: 200px;">
                 </div>
                 <!-- Tombol Download -->
@@ -120,6 +122,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
                             <tr>
                                 <th>Username</th>
                                 <th>User ID</th>
+                                <th>Tanggal</th>
                                 <th>Jam Masuk</th>
                                 <th>Jam Keluar</th>
                                 <th>Durasi Sesi</th>
@@ -127,7 +130,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
                         </thead>
                         <tbody id="laporanBody">
                             <tr>
-                                <td colspan="5" class="text-center">Memuat data...</td>
+                                <td colspan="6" class="text-center">Memuat data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -139,6 +142,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
     <!-- Script khusus halaman laporan -->
     <script>
         const filterEl = document.getElementById('laporanFilter');
+        const dateEl = document.getElementById('laporanDate');
         const searchEl = document.getElementById('laporanSearch');
         const btnDownload = document.getElementById('btn-download');
         
@@ -153,20 +157,26 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
         function loadLaporan() {
             const period = filterEl.value;
             const search = searchEl.value;
+            const specificDate = dateEl.value;
             
             let titleText = 'Laporan Kehadiran Player Roblox - ';
-            if(period === 'today') titleText += 'Hari Ini';
-            else if(period === 'week') titleText += 'Minggu Ini';
-            else if(period === 'month') titleText += 'Bulan Ini';
-            else if(period === 'year') titleText += 'Tahun Ini';
-            else if(period === 'all') titleText += 'Semua Waktu';
+            
+            if (specificDate) {
+                titleText += specificDate;
+            } else {
+                if(period === 'today') titleText += 'Hari Ini';
+                else if(period === 'week') titleText += 'Minggu Ini';
+                else if(period === 'month') titleText += 'Bulan Ini';
+                else if(period === 'year') titleText += 'Tahun Ini';
+                else if(period === 'all') titleText += 'Semua Waktu';
+            }
             
             if (search) titleText += ' (Pencarian: ' + search + ')';
             
             laporanTitle.textContent = titleText;
-            laporanBody.innerHTML = `<tr><td colspan="5" class="text-center">Memuat data...</td></tr>`;
+            laporanBody.innerHTML = `<tr><td colspan="6" class="text-center">Memuat data...</td></tr>`;
 
-            fetch('ajax/get_laporan.php?period=' + period + '&search=' + encodeURIComponent(search))
+            fetch('ajax/get_laporan.php?period=' + period + '&search=' + encodeURIComponent(search) + '&date=' + specificDate)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
@@ -177,7 +187,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
 
                         // 2. Render Table
                         if (data.table.length === 0) {
-                            laporanBody.innerHTML = `<tr><td colspan="5" class="text-center">Tidak ada catatan kehadiran yang cocok dengan pencarian ini</td></tr>`;
+                            laporanBody.innerHTML = `<tr><td colspan="6" class="text-center">Tidak ada catatan kehadiran yang cocok dengan pencarian ini</td></tr>`;
                         } else {
                             let html = '';
                             data.table.forEach(r => {
@@ -185,8 +195,9 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
                                     <tr>
                                         <td><strong>${r.username}</strong></td>
                                         <td><small class="text-secondary">${r.userId}</small></td>
-                                        <td>${r.join_time_format}</td>
-                                        <td>${r.leave_time_format}</td>
+                                        <td>${r.tanggal_format}</td>
+                                        <td>${r.jam_masuk}</td>
+                                        <td>${r.jam_keluar}</td>
                                         <td>${r.duration}</td>
                                     </tr>
                                 `;
@@ -194,12 +205,12 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
                             laporanBody.innerHTML = html;
                         }
                     } else {
-                        laporanBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>`;
+                        laporanBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>`;
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    laporanBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Koneksi API error</td></tr>`;
+                    laporanBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Koneksi API error</td></tr>`;
                 });
         }
 
@@ -207,11 +218,20 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['OWNER', 'IT', 'M
         btnDownload.addEventListener('click', function() {
             const period = filterEl.value;
             const search = searchEl.value;
-            window.location.href = 'ajax/export_csv.php?period=' + period + '&search=' + encodeURIComponent(search);
+            const specificDate = dateEl.value;
+            window.location.href = 'ajax/export_csv.php?period=' + period + '&search=' + encodeURIComponent(search) + '&date=' + specificDate;
         });
 
-        // Event listener saat ganti filter
-        filterEl.addEventListener('change', loadLaporan);
+        // Event listener saat ganti filter dropdown atau date picker
+        filterEl.addEventListener('change', function() {
+            dateEl.value = ''; // Reset tanggal spesifik jika ganti periode
+            loadLaporan();
+        });
+        
+        dateEl.addEventListener('change', function() {
+            filterEl.value = 'all'; // Reset ke semua jika pilih tanggal spesifik
+            loadLaporan();
+        });
         
         // Debounce untuk input pencarian username
         searchEl.addEventListener('input', function() {

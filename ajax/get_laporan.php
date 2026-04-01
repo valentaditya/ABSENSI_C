@@ -9,18 +9,24 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
 $period = $_GET['period'] ?? 'today';
 $search = $_GET['search'] ?? '';
+$dateVal = $_GET['date'] ?? '';
 
 $where = "1=1";
 $params = [];
 
-if ($period === 'today') {
-    $where .= " AND DATE(join_time) = CURDATE()";
-} elseif ($period === 'week') {
-    $where .= " AND YEARWEEK(join_time, 1) = YEARWEEK(CURDATE(), 1)";
-} elseif ($period === 'month') {
-    $where .= " AND MONTH(join_time) = MONTH(CURDATE()) AND YEAR(join_time) = YEAR(CURDATE())";
-} elseif ($period === 'year') {
-    $where .= " AND YEAR(join_time) = YEAR(CURDATE())";
+if (!empty($dateVal)) {
+    $where .= " AND DATE(join_time) = :dateVal";
+    $params[':dateVal'] = $dateVal;
+} else {
+    if ($period === 'today') {
+        $where .= " AND DATE(join_time) = CURDATE()";
+    } elseif ($period === 'week') {
+        $where .= " AND YEARWEEK(join_time, 1) = YEARWEEK(CURDATE(), 1)";
+    } elseif ($period === 'month') {
+        $where .= " AND MONTH(join_time) = MONTH(CURDATE()) AND YEAR(join_time) = YEAR(CURDATE())";
+    } elseif ($period === 'year') {
+        $where .= " AND YEAR(join_time) = YEAR(CURDATE())";
+    }
 }
 
 if ($search !== '') {
@@ -47,8 +53,9 @@ try {
         $s = $diffSeconds % 60;
         
         $row['duration'] = sprintf("%02d Jam %02d Menit", $h, $m);
-        $row['join_time_format'] = date('d M Y, H:i', $joinTimestamp);
-        $row['leave_time_format'] = $row['leave_time'] ? date('d M Y, H:i', $leaveTimestamp) : 'Masih Bermain';
+        $row['tanggal_format'] = date('d M Y', $joinTimestamp);
+        $row['jam_masuk'] = date('H:i', $joinTimestamp);
+        $row['jam_keluar'] = $row['leave_time'] ? date('H:i', $leaveTimestamp) : 'Masih Bermain';
         
         $tableData[] = $row;
     }

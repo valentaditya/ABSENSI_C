@@ -10,18 +10,24 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
 $period = $_GET['period'] ?? 'all';
 $search = $_GET['search'] ?? '';
+$dateVal = $_GET['date'] ?? '';
 
 $where = "1=1";
 $params = [];
 
-if ($period === 'today') {
-    $where .= " AND DATE(join_time) = CURDATE()";
-} elseif ($period === 'week') {
-    $where .= " AND YEARWEEK(join_time, 1) = YEARWEEK(CURDATE(), 1)";
-} elseif ($period === 'month') {
-    $where .= " AND MONTH(join_time) = MONTH(CURDATE()) AND YEAR(join_time) = YEAR(CURDATE())";
-} elseif ($period === 'year') {
-    $where .= " AND YEAR(join_time) = YEAR(CURDATE())";
+if (!empty($dateVal)) {
+    $where .= " AND DATE(join_time) = :dateVal";
+    $params[':dateVal'] = $dateVal;
+} else {
+    if ($period === 'today') {
+        $where .= " AND DATE(join_time) = CURDATE()";
+    } elseif ($period === 'week') {
+        $where .= " AND YEARWEEK(join_time, 1) = YEARWEEK(CURDATE(), 1)";
+    } elseif ($period === 'month') {
+        $where .= " AND MONTH(join_time) = MONTH(CURDATE()) AND YEAR(join_time) = YEAR(CURDATE())";
+    } elseif ($period === 'year') {
+        $where .= " AND YEAR(join_time) = YEAR(CURDATE())";
+    }
 }
 
 if ($search !== '') {
@@ -42,7 +48,7 @@ header('Content-Disposition: attachment; filename="Laporan_Absensi_Roblox_' . da
 $output = fopen('php://output', 'w');
 
 // Header Kolom CSV
-fputcsv($output, ['ID', 'User ID', 'Username', 'Jam Masuk', 'Jam Keluar', 'Durasi Bermain (Detik)', 'Status']);
+fputcsv($output, ['ID', 'User ID', 'Username', 'Tanggal', 'Jam Masuk', 'Jam Keluar', 'Durasi Bermain (Detik)', 'Status']);
 
 // Isi baris data
 foreach ($data as $row) {
@@ -57,12 +63,17 @@ foreach ($data as $row) {
         $statusStr = 'Online';
     }
 
+    $tanggal = date('Y-m-d', $joinTimestamp);
+    $jamMasuk = date('H:i:s', $joinTimestamp);
+    $jamKeluar = $row['leave_time'] ? date('H:i:s', strtotime($row['leave_time'])) : '-';
+
     fputcsv($output, [
         $row['id'],
         $row['userId'],
         $row['username'],
-        $row['join_time'],
-        $row['leave_time'] ?? '-',
+        $tanggal,
+        $jamMasuk,
+        $jamKeluar,
         $diffSeconds,
         $statusStr
     ]);
